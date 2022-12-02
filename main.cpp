@@ -7,7 +7,7 @@
 #include <sys/socket.h>
 using namespace std;
 #define PORT 8000
-#define HOST "192.168.0.181"
+#define HOST "0.0.0.0"
 #define BUFF_MAX 1024
 
 enum FileType {
