@@ -7,7 +7,6 @@
 #include <sys/socket.h>
 #include <sstream>
 #include <string>
-#include "zlib.h"
 using namespace std;
 #define PORT 8000
 #define HOST "0.0.0.0"
@@ -28,6 +27,10 @@ enum FileType {
 
 int request_handler(int new_socket, char* request);
 int send_response(int new_socket, char* send_buffer, int datalen);
+int login(string username, string password);
+FileType parse_type(char* file_name);
+
+char error_header[] = "HTTP/1.1 500 Internal Server Error\r\n\n";
 
 int main(void)
 {
@@ -56,7 +59,7 @@ int main(void)
 
 	listen(sockfd, 20);
 
-	while (new_socket = accept(sockfd, (struct sockaddr*)&address, (socklen_t*)&addrlen)) {
+	while ((new_socket = accept(sockfd, (struct sockaddr*)&address, (socklen_t*)&addrlen)) > 0) {
 		// cout << "accepted" << endl;
 		if ((pid = fork()) < 0) {
 			// fork error
@@ -70,16 +73,19 @@ int main(void)
 				cout << "close sockfd in child error" << endl;
 				// exit(1);
 			}
-			if ((recvstat = recv(new_socket, recv_buffer, BUFF_MAX, 0)) < 0) {
-				cout << "recv error" << endl;
-				// exit(1);
-			}
-			cout << "recived " << recvstat << "bytes" << endl;
-			cout << "request: " << endl;
-			cout << "===============================================" << endl;
-			cout << recv_buffer << endl;
-			cout << "===============================================" << endl;
-			request_handler(new_socket, recv_buffer); // TODO
+            while (1) {
+                if ((recvstat = recv(new_socket, recv_buffer, BUFF_MAX, 0)) <= 0) {
+                    cout << "recv error" << endl;
+                    break;
+                    // exit(1);
+                }
+                cout << "recived " << recvstat << "bytes" << endl;
+                cout << "request: " << endl;
+                cout << "===============================================" << endl;
+                cout << recv_buffer << endl;
+                cout << "===============================================" << endl;
+                request_handler(new_socket, recv_buffer); // TODO
+            }
 			
 			if (close(new_socket) != 0) {
 				cout << "close new socket in child error" << endl;
@@ -104,7 +110,7 @@ int request_handler(int new_socket, char* request)
 	FILE *fp;
 	char send_buffer[BUFF_MAX], buffer1[100];
 	long int f_size;
-	int size, nmemb;
+	int size, nmemb, delta;
 	const char* d = " ";
 	char *method, *target, *http_version;
 	char *headerline, *bodyline;
@@ -116,23 +122,14 @@ int request_handler(int new_socket, char* request)
 	cout << "method: " << method << endl;
 	target = strtok(NULL, d);
 	cout << "target: "<< target << endl;
+    ftype = parse_type(target);
 	http_version = strtok(NULL, "\n");
 	cout << "http_version: "<< http_version << endl;
-
+    
+    // open file for GET request
 	if (strcmp(method, "GET") == 0) {
 		if (strcmp(target, "/") == 0) {
 			fp = fopen("index.html", "r");
-			fseek(fp, 0L, SEEK_END);
-			f_size = ftell(fp);
-			// fseek(fp, SEEK_SET, 0);
-			rewind(fp);
-			ftype = HTML;
-		} else if (strcmp(target, "/login") == 0) {
-			fp = fopen("login.html", "r");
-			fseek(fp, 0L, SEEK_END);
-			f_size = ftell(fp);
-			// fseek(fp, SEEK_SET, 0);
-			rewind(fp);
 			ftype = HTML;
             size = sizeof(char);
             nmemb = BUFF_MAX;
@@ -198,7 +195,9 @@ int request_handler(int new_socket, char* request)
 		}
 	}
 
+    // generate and send request header
 	strcpy(send_buffer, "HTTP/1.1 200 OK\r\n");
+    strcat(send_buffer, "Connection: keep-alive\r\n");
 	strcat(send_buffer, "Cache-control: public, max-age=0\r\n");
 	sprintf(buffer1, "Content-Length: %ld\r\n", f_size);
 	strcat(send_buffer, buffer1);
@@ -210,7 +209,7 @@ int request_handler(int new_socket, char* request)
 			strcat(send_buffer, "Content-type: image/x-icon\r\n");
 			break;
 		case JPEG:
-			strcat(send_buffer, "Content-type: image/jpeg\r\n");
+			strcat(send_buffer, "Content-type: image/jpg\r\n");
 			break;
 		case PNG:
 			strcat(send_buffer, "Content-type: image/png\r\n");
@@ -237,8 +236,8 @@ int request_handler(int new_socket, char* request)
 
 	send_response(new_socket, send_buffer, strlen(send_buffer));
 
-	size = sizeof(char); // 1
-	nmemb = BUFF_MAX - 1; // sizeof(send_buffer)
+	//size = sizeof(char); // 1
+	//nmemb = BUFF_MAX - 1; // sizeof(send_buffer)
 	
     // send the request content
     cout << "start sending" << endl;
@@ -264,11 +263,11 @@ int send_response(int new_socket, char* send_buffer, int datalen)
 	//cout << "start sending" << endl;
 	while (datalen > 0) {
 		sent = send(new_socket, send_buffer, datalen, 0);
-		if (send < 0) {
+		if (sent < 0) {
 			cout << "send error" << endl;
 			return -1;
 		}
-		if (send == 0) {
+		if (sent == 0) {
 			cout << "client has disconnected" << endl;
 			return -1;
 		}
@@ -287,7 +286,7 @@ int login(string username, string password)
 
 FileType parse_type(char* file_name)
 {
-	int i;
+    int i;
     char type[10];
     
     for (i = 0; i < strlen(file_name); i++) {
