@@ -7,6 +7,8 @@
 #include <sys/socket.h>
 #include <sstream>
 #include <string>
+#include <fstream>
+#include <time.h>
 using namespace std;
 #define PORT 8000
 #define HOST "0.0.0.0"
@@ -115,25 +117,30 @@ int request_handler(int new_socket, char* request)
 	char *method, *target, *http_version;
 	char *headerline, *bodyline;
 	FileType ftype;
-	int register_status, login_status;
+	// int register_status, login_status;
+	char Location[100];
+	time_t     now;
+	struct tm  tstruct;
+	char       tbuf[80];
 
 	// TODO extrate the file to be sent and calculate the length
 	method = strtok(request, d);
 	cout << "method: " << method << endl;
 	target = strtok(NULL, d);
 	cout << "target: "<< target << endl;
-    ftype = parse_type(target);
 	http_version = strtok(NULL, "\n");
 	cout << "http_version: "<< http_version << endl;
     
     // open file for GET request
 	if (strcmp(method, "GET") == 0) {
+    	ftype = parse_type(target);
 		if (strcmp(target, "/") == 0) {
 			fp = fopen("index.html", "r");
 			ftype = HTML;
             size = sizeof(char);
             nmemb = BUFF_MAX;
         } else {
+			cout << "==================" << ftype << endl;
             switch (ftype) {
                 case HTML: case CSS: case JS:
                     if ((fp = fopen(target + 1, "r")) == NULL) {
@@ -163,8 +170,50 @@ int request_handler(int new_socket, char* request)
         fseek(fp, 0L, SEEK_END);
         f_size = ftell(fp);
         rewind(fp);
+		strcpy(send_buffer, "HTTP/1.1 200 OK\r\n");
+
 	} else if (strcmp(method, "POST") == 0) {
-		if (strcmp(target, "/login") == 0) {
+		// if (strcmp(target, "/login") == 0) {
+		// 	while ((headerline = strtok(NULL, "\n")) && headerline[0] != '\r') {
+		// 		// cout << "headerline: "<< headerline << endl;
+		// 		continue;
+		// 	}
+		// 	bodyline = strtok(NULL, "\n");
+		// 	cout << "bodyline: "<< bodyline << endl;
+		// 	istringstream input_stream(bodyline);
+		// 	string key;
+		// 	string value;
+		// 	string username, password;
+		// 	while (getline(input_stream, key, '=')) {
+		// 		getline(input_stream, value, '&');
+		// 		if (key == "username") {
+		// 			username = value;
+		// 		} else if (key == "password") {
+		// 			password = value;
+		// 		}
+		// 	}
+		// 	cout << "username: " << username << endl;
+		// 	cout << "password: " << password << endl;
+		// 	login_status = login(username, password);
+		// 	// fp = fopen("index.html", "r");
+		// 	// fseek(fp, 0L, SEEK_END);
+		// 	// f_size = ftell(fp);
+		// 	// // fseek(fp, SEEK_SET, 0);
+		// 	// rewind(fp);
+		// 	// ftype = HTML;
+		// 	fp = fopen("user.html", "r");
+		// 	ftype = HTML;
+        //     size = sizeof(char);
+        //     nmemb = BUFF_MAX;
+		// 	strcpy(Location, "/user.html");
+		// 	fseek(fp, 0L, SEEK_END);
+		// 	f_size = ftell(fp);
+		// 	rewind(fp);
+		// 	strcpy(send_buffer, "HTTP/1.1 303 OK\r\n");
+		// 	// strcpy(send_buffer, "Set-Cookie: isLoggedIn=true\r\n");
+		// 	// strcpy(send_buffer, "Set-Cookie: username=ray\r\n");
+		// }
+		if (strcmp(target, "/sendmsg") == 0) {
 			while ((headerline = strtok(NULL, "\n")) && headerline[0] != '\r') {
 				// cout << "headerline: "<< headerline << endl;
 				continue;
@@ -174,32 +223,46 @@ int request_handler(int new_socket, char* request)
 			istringstream input_stream(bodyline);
 			string key;
 			string value;
-			string username, password;
+			string username, message;
 			while (getline(input_stream, key, '=')) {
 				getline(input_stream, value, '&');
 				if (key == "username") {
 					username = value;
-				} else if (key == "password") {
-					password = value;
+				} else if (key == "message") {
+					message = value;
 				}
 			}
 			cout << "username: " << username << endl;
-			cout << "password: " << password << endl;
-			login_status = login(username, password);
-			// fp = fopen("index.html", "r");
-			// fseek(fp, 0L, SEEK_END);
-			// f_size = ftell(fp);
-			// // fseek(fp, SEEK_SET, 0);
-			// rewind(fp);
-			// ftype = HTML;
+			cout << "message: " << message << endl;
+
+			ofstream outfile;
+			outfile.open("file.html", ios_base::app); // append instead of overwrite
+			now = time(0);
+			tstruct = *localtime(&now);
+			strftime(tbuf, sizeof(tbuf), "%Y-%m-%d.%X", &tstruct);
+			outfile << "[" << tbuf << "] " << username << ": " << message << "<br>\n"; 
+			fp = fopen("board.html", "r");
+			ftype = HTML;
+            size = sizeof(char);
+            nmemb = BUFF_MAX;
+			strcpy(Location, "/board.html");
+			fseek(fp, 0L, SEEK_END);
+			f_size = ftell(fp);
+			rewind(fp);
+			strcpy(send_buffer, "HTTP/1.1 303 OK\r\n");
 		}
 	}
 
     // generate and send request header
-	strcpy(send_buffer, "HTTP/1.1 200 OK\r\n");
+	// strcpy(send_buffer, "HTTP/1.1 200 OK\r\n");
     strcat(send_buffer, "Connection: keep-alive\r\n");
 	strcat(send_buffer, "Cache-control: public, max-age=0\r\n");
 	sprintf(buffer1, "Content-Length: %ld\r\n", f_size);
+	if (strlen(Location) != 0) {
+		strcat(send_buffer, "Location: ");
+		strcat(send_buffer, Location);
+		strcat(send_buffer, "\r\n");
+	}
 	strcat(send_buffer, buffer1);
 	switch (ftype) {
 		case HTML:
