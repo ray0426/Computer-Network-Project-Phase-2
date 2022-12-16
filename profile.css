@@ -1,0 +1,101 @@
+@charset "utf-8";
+
+body,td,th {
+	font-family: Tahoma, Verdana, Arial, sans-serif, "標楷體";
+/*
+	font-family: Geneva, Arial, Helvetica, sans-serif, "標楷體";
+*/
+	font-size: large;
+}
+
+body {
+	background-image: url(laybkgnd.gif);
+/*
+	text-align: center;
+*/
+}
+
+acronym {
+	cursor: help;
+	text-decoration: underline;
+}
+
+.chinese {
+	font-family: "標楷體", "Times New Roman";
+}
+
+.english {
+}
+
+h3 {
+	font-size: large;
+}
+
+#profile {
+	position: relative;
+	left: 10%;
+	width: 80%;
+	margin: 0;
+	padding: 0;
+}
+
+#prof-name {
+	float: left;
+	background-color: #CCC;
+	margin: 0.3em;
+	padding: 0.3em;
+	font-size: xx-large;
+	font-weight: bold;
+}
+
+#prof-title {
+	clear: both;
+	padding-top: 1em;
+}
+
+#prof-researcharea {
+	padding: 1em 0;
+}
+
+#prof-researcharea #eresearcharea {
+	padding: 1em 0;
+}
+
+#prof-researcharea h3 {
+	display: inline;
+}
+
+#prof-researchsum {
+	float: left;
+	margin: 0;
+	padding: 0;
+	width: 45%;
+}
+
+#prof-degree h3, #prof-contact h3 {
+	display: inline;
+}
+
+#prof-photo, #prof-degree, #prof-contact, #prof-selectpub {
+	float: right;
+	clear: right;
+	margin: 0;
+	padding: 0;
+	width: 45%;
+}
+
+#prof-photo {
+	text-align: center;
+}
+
+#prof-footer {
+	margin-top: 1em;
+	border-top: 2px ridge #AAA;
+	clear: both;
+	text-align: center;
+}
+
+#prof-footer ul li {
+	display: inline;
+	margin: 0 1ex 0;
+}

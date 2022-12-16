@@ -7,6 +7,7 @@
 #include <sys/socket.h>
 #include <sstream>
 #include <string>
+#include "zlib.h"
 using namespace std;
 #define PORT 8000
 #define HOST "0.0.0.0"
@@ -19,7 +20,10 @@ enum FileType {
 	JPEG,
 	JS,
 	XCON,
-	GIF
+	GIF,
+    MP4,
+    FLAC,
+    None
 };
 
 int request_handler(int new_socket, char* request);
@@ -130,14 +134,38 @@ int request_handler(int new_socket, char* request)
 			// fseek(fp, SEEK_SET, 0);
 			rewind(fp);
 			ftype = HTML;
-		} else if (strcmp(target, "/favicon.ico") == 0) {
-			fp = fopen("favicon.ico", "r");
-			fseek(fp, 0L, SEEK_END);
-			f_size = ftell(fp);
-			// fseek(fp, SEEK_SET, 0);
-			rewind(fp);
-			ftype = XCON;
-		}
+            size = sizeof(char);
+            nmemb = BUFF_MAX;
+        } else {
+            switch (ftype) {
+                case HTML: case CSS: case JS:
+                    if ((fp = fopen(target + 1, "r")) == NULL) {
+                        send_response(new_socket, error_header, strlen(error_header));
+                        fclose(fp);
+                        return -1;
+                    }
+                    size = sizeof(char);
+                    nmemb = BUFF_MAX;
+                    break;
+                case PNG: case JPEG: case XCON: case GIF: case MP4: case FLAC:
+                    if ((fp = fopen(target + 1, "rb")) == NULL) {
+                        send_response(new_socket, error_header, strlen(error_header));
+                        fclose(fp);
+                        return -1;
+                    }
+                    size = 1;
+                    nmemb = sizeof(send_buffer);
+                    break;
+                default:
+                    cout << "No such file" << endl;
+                    send_response(new_socket, error_header, strlen(error_header));
+                    return -1;
+                    break;
+            }
+        }
+        fseek(fp, 0L, SEEK_END);
+        f_size = ftell(fp);
+        rewind(fp);
 	} else if (strcmp(method, "POST") == 0) {
 		if (strcmp(target, "/login") == 0) {
 			while ((headerline = strtok(NULL, "\n")) && headerline[0] != '\r') {
@@ -196,6 +224,12 @@ int request_handler(int new_socket, char* request)
 		case GIF:
 			strcat(send_buffer, "Content-Type: image/gif\r\n");
 			break;
+        case MP4:
+            strcat(send_buffer, "Content-Type: video/mp4\r\n");
+            break;
+        case FLAC:
+            strcat(send_buffer, "Content-Type: audio/flac\r\n");
+            break;
 		default:
 			strcat(send_buffer, "Content-Type: type error\r\n");
 	}
@@ -206,18 +240,28 @@ int request_handler(int new_socket, char* request)
 	size = sizeof(char); // 1
 	nmemb = BUFF_MAX - 1; // sizeof(send_buffer)
 	
+    // send the request content
+    cout << "start sending" << endl;
 	while (f_size > 0) {
-		f_size -= fread(send_buffer, size, nmemb, fp);
-		// cout << send_buffer << endl;
-		send_response(new_socket, send_buffer, strlen(send_buffer));
+		delta = fread(send_buffer, size, nmemb, fp);
+        if (delta <= nmemb && ferror(fp)) {
+            cout << "Fail to read the file" << endl;
+            fclose(fp);
+            return -1;
+        }
+        send_response(new_socket, send_buffer, delta);
+        f_size -= delta;
+        //cout << delta << " bytes sent" << endl;
 	}
+    cout << "===============================================" << endl;
+    fclose(fp);
 	return 0;
 }
 
 int send_response(int new_socket, char* send_buffer, int datalen)
 {
 	int sent = 0;
-	cout << "start sending" << endl;
+	//cout << "start sending" << endl;
 	while (datalen > 0) {
 		sent = send(new_socket, send_buffer, datalen, 0);
 		if (send < 0) {
@@ -230,13 +274,48 @@ int send_response(int new_socket, char* send_buffer, int datalen)
 		}
 		send_buffer += sent;
 		datalen -= sent;
-		cout << sent << " bytes sent" << endl;
+		//cout << sent << " bytes sent" << endl;
 	}
-	cout << "===============================================" << endl;
+	//cout << "===============================================" << endl;
 	return 0;
 }
 
 int login(string username, string password)
 {
-	
+	return 0;
+}
+
+FileType parse_type(char* file_name)
+{
+	int i;
+    char type[10];
+    
+    for (i = 0; i < strlen(file_name); i++) {
+        if (file_name[i] == '.') {
+            strcpy(type, &file_name[i]);
+            break;
+        }
+    }
+    
+    if (strcmp(type, ".html") == 0) {
+        return HTML;
+    } else if (strcmp(type, ".css") == 0) {
+        return CSS;
+    } else if (strcmp(type, ".png") == 0) {
+        return PNG;
+    } else if (strcmp(type, ".jpeg") == 0 || strcmp(type, ".jpg") == 0) {
+        return JPEG;
+    } else if (strcmp(type, ".js") == 0) {
+        return JS;
+    } else if (strcmp(type, ".xcon") == 0) {
+        return XCON;
+    } else if (strcmp(type, ".gif") == 0) {
+        return GIF;
+    } else if (strcmp(type, ".mp4") == 0) {
+        return MP4;
+    } else if (strcmp(type, ".flac") == 0) {
+        return FLAC;
+    } else {
+        return None;
+    }
 }
