@@ -5,6 +5,8 @@
 #include <string.h>
 #include <unistd.h>
 #include <sys/socket.h>
+#include <sstream>
+#include <string>
 using namespace std;
 #define PORT 8000
 #define HOST "0.0.0.0"
@@ -17,15 +19,11 @@ enum FileType {
 	JPEG,
 	JS,
 	XCON,
-	GIF,
-    None
+	GIF
 };
 
 int request_handler(int new_socket, char* request);
 int send_response(int new_socket, char* send_buffer, int datalen);
-FileType parse_type(char* file_name);
-
-char error_header[] = "HTTP/1.1 500 Internal Server Error\r\n\n";
 
 int main(void)
 {
@@ -54,7 +52,7 @@ int main(void)
 
 	listen(sockfd, 20);
 
-	while ((new_socket = accept(sockfd, (struct sockaddr*)&address, (socklen_t*)&addrlen)) > 0) {
+	while (new_socket = accept(sockfd, (struct sockaddr*)&address, (socklen_t*)&addrlen)) {
 		// cout << "accepted" << endl;
 		if ((pid = fork()) < 0) {
 			// fork error
@@ -68,19 +66,16 @@ int main(void)
 				cout << "close sockfd in child error" << endl;
 				// exit(1);
 			}
-            while (1) {
-                if ((recvstat = recv(new_socket, recv_buffer, BUFF_MAX, 0)) <= 0) {
-                    cout << "recv error" << endl;
-                    break;
-                    // exit(1);
-                }
-                cout << "recived " << recvstat << "bytes" << endl;
-                cout << "request: " << endl;
-                cout << "===============================================" << endl;
-                cout << recv_buffer << endl;
-                cout << "===============================================" << endl;
-                request_handler(new_socket, recv_buffer); // TODO
-            }
+			if ((recvstat = recv(new_socket, recv_buffer, BUFF_MAX, 0)) < 0) {
+				cout << "recv error" << endl;
+				// exit(1);
+			}
+			cout << "recived " << recvstat << "bytes" << endl;
+			cout << "request: " << endl;
+			cout << "===============================================" << endl;
+			cout << recv_buffer << endl;
+			cout << "===============================================" << endl;
+			request_handler(new_socket, recv_buffer); // TODO
 			
 			if (close(new_socket) != 0) {
 				cout << "close new socket in child error" << endl;
@@ -105,60 +100,77 @@ int request_handler(int new_socket, char* request)
 	FILE *fp;
 	char send_buffer[BUFF_MAX], buffer1[100];
 	long int f_size;
-	int size, nmemb, delta;
+	int size, nmemb;
 	const char* d = " ";
-	char* method, *target;
+	char *method, *target, *http_version;
+	char *headerline, *bodyline;
 	FileType ftype;
+	int register_status, login_status;
 
 	// TODO extrate the file to be sent and calculate the length
 	method = strtok(request, d);
 	cout << "method: " << method << endl;
 	target = strtok(NULL, d);
 	cout << "target: "<< target << endl;
-    ftype = parse_type(target);
-    
-    // open file for GET request
+	http_version = strtok(NULL, "\n");
+	cout << "http_version: "<< http_version << endl;
+
 	if (strcmp(method, "GET") == 0) {
 		if (strcmp(target, "/") == 0) {
 			fp = fopen("index.html", "r");
+			fseek(fp, 0L, SEEK_END);
+			f_size = ftell(fp);
+			// fseek(fp, SEEK_SET, 0);
+			rewind(fp);
 			ftype = HTML;
-            size = sizeof(char);
-            nmemb = BUFF_MAX;
-        } else {
-            switch (ftype) {
-                case HTML: case CSS: case JS:
-                    if ((fp = fopen(target + 1, "r")) == NULL) {
-                        send_response(new_socket, error_header, strlen(error_header));
-                        fclose(fp);
-                        return -1;
-                    }
-                    size = sizeof(char);
-                    nmemb = BUFF_MAX;
-                    break;
-                case PNG: case JPEG: case XCON: case GIF:
-                    if ((fp = fopen(target + 1, "rb")) == NULL) {
-                        send_response(new_socket, error_header, strlen(error_header));
-                        fclose(fp);
-                        return -1;
-                    }
-                    size = 1;
-                    nmemb = sizeof(send_buffer);
-                    break;
-                default:
-                    cout << "No such file" << endl;
-                    send_response(new_socket, error_header, strlen(error_header));
-                    return -1;
-                    break;
-            }
-        }
-        fseek(fp, 0L, SEEK_END);
-        f_size = ftell(fp);
-        rewind(fp);
+		} else if (strcmp(target, "/login") == 0) {
+			fp = fopen("login.html", "r");
+			fseek(fp, 0L, SEEK_END);
+			f_size = ftell(fp);
+			// fseek(fp, SEEK_SET, 0);
+			rewind(fp);
+			ftype = HTML;
+		} else if (strcmp(target, "/favicon.ico") == 0) {
+			fp = fopen("favicon.ico", "r");
+			fseek(fp, 0L, SEEK_END);
+			f_size = ftell(fp);
+			// fseek(fp, SEEK_SET, 0);
+			rewind(fp);
+			ftype = XCON;
+		}
+	} else if (strcmp(method, "POST") == 0) {
+		if (strcmp(target, "/login") == 0) {
+			while ((headerline = strtok(NULL, "\n")) && headerline[0] != '\r') {
+				// cout << "headerline: "<< headerline << endl;
+				continue;
+			}
+			bodyline = strtok(NULL, "\n");
+			cout << "bodyline: "<< bodyline << endl;
+			istringstream input_stream(bodyline);
+			string key;
+			string value;
+			string username, password;
+			while (getline(input_stream, key, '=')) {
+				getline(input_stream, value, '&');
+				if (key == "username") {
+					username = value;
+				} else if (key == "password") {
+					password = value;
+				}
+			}
+			cout << "username: " << username << endl;
+			cout << "password: " << password << endl;
+			login_status = login(username, password);
+			// fp = fopen("index.html", "r");
+			// fseek(fp, 0L, SEEK_END);
+			// f_size = ftell(fp);
+			// // fseek(fp, SEEK_SET, 0);
+			// rewind(fp);
+			// ftype = HTML;
+		}
 	}
 
-    // generate and send request header
 	strcpy(send_buffer, "HTTP/1.1 200 OK\r\n");
-    strcat(send_buffer, "Connection: keep-alive\r\n");
 	strcat(send_buffer, "Cache-control: public, max-age=0\r\n");
 	sprintf(buffer1, "Content-Length: %ld\r\n", f_size);
 	strcat(send_buffer, buffer1);
@@ -170,7 +182,7 @@ int request_handler(int new_socket, char* request)
 			strcat(send_buffer, "Content-type: image/x-icon\r\n");
 			break;
 		case JPEG:
-			strcat(send_buffer, "Content-type: image/jpg\r\n");
+			strcat(send_buffer, "Content-type: image/jpeg\r\n");
 			break;
 		case PNG:
 			strcat(send_buffer, "Content-type: image/png\r\n");
@@ -187,25 +199,18 @@ int request_handler(int new_socket, char* request)
 		default:
 			strcat(send_buffer, "Content-Type: type error\r\n");
 	}
-	strcat(send_buffer, "\n");
+	strcat(send_buffer, "\r\n");
 
 	send_response(new_socket, send_buffer, strlen(send_buffer));
 
-	//size = sizeof(char); // 1
-	//nmemb = BUFF_MAX - 1; // sizeof(send_buffer)
+	size = sizeof(char); // 1
+	nmemb = BUFF_MAX - 1; // sizeof(send_buffer)
 	
-    // send the request content
 	while (f_size > 0) {
-		delta = fread(send_buffer, size, nmemb, fp);
-        if (delta <= nmemb && ferror(fp)) {
-            cout << "Fail to read the file" << endl;
-            fclose(fp);
-            return -1;
-        }
-        send_response(new_socket, send_buffer, delta);
-        f_size -= delta;
+		f_size -= fread(send_buffer, size, nmemb, fp);
+		// cout << send_buffer << endl;
+		send_response(new_socket, send_buffer, strlen(send_buffer));
 	}
-    fclose(fp);
 	return 0;
 }
 
@@ -215,11 +220,11 @@ int send_response(int new_socket, char* send_buffer, int datalen)
 	cout << "start sending" << endl;
 	while (datalen > 0) {
 		sent = send(new_socket, send_buffer, datalen, 0);
-		if (sent < 0) {
+		if (send < 0) {
 			cout << "send error" << endl;
 			return -1;
 		}
-		if (sent == 0) {
+		if (send == 0) {
 			cout << "client has disconnected" << endl;
 			return -1;
 		}
@@ -231,33 +236,7 @@ int send_response(int new_socket, char* send_buffer, int datalen)
 	return 0;
 }
 
-FileType parse_type(char* file_name)
+int login(string username, string password)
 {
-    int i;
-    char type[10];
-    
-    for (i = 0; i < strlen(file_name); i++) {
-        if (file_name[i] == '.') {
-            strcpy(type, &file_name[i]);
-            break;
-        }
-    }
-    
-    if (strcmp(type, ".html") == 0) {
-        return HTML;
-    } else if (strcmp(type, ".css") == 0) {
-        return CSS;
-    } else if (strcmp(type, ".png") == 0) {
-        return PNG;
-    } else if (strcmp(type, ".jpeg") == 0 || strcmp(type, ".jpg") == 0) {
-        return JPEG;
-    } else if (strcmp(type, ".js") == 0) {
-        return JS;
-    } else if (strcmp(type, ".xcon") == 0) {
-        return XCON;
-    } else if (strcmp(type, ".gif") == 0) {
-        return GIF;
-    } else {
-        return None;
-    }
+	
 }
