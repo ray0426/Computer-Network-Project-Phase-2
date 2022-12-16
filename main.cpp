@@ -5,6 +5,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <sys/socket.h>
+#include "zlib.h"
 using namespace std;
 #define PORT 8000
 #define HOST "0.0.0.0"
@@ -18,6 +19,8 @@ enum FileType {
 	JS,
 	XCON,
 	GIF,
+    MP4,
+    FLAC,
     None
 };
 
@@ -135,7 +138,7 @@ int request_handler(int new_socket, char* request)
                     size = sizeof(char);
                     nmemb = BUFF_MAX;
                     break;
-                case PNG: case JPEG: case XCON: case GIF:
+                case PNG: case JPEG: case XCON: case GIF: case MP4: case FLAC:
                     if ((fp = fopen(target + 1, "rb")) == NULL) {
                         send_response(new_socket, error_header, strlen(error_header));
                         fclose(fp);
@@ -184,6 +187,12 @@ int request_handler(int new_socket, char* request)
 		case GIF:
 			strcat(send_buffer, "Content-Type: image/gif\r\n");
 			break;
+        case MP4:
+            strcat(send_buffer, "Content-Type: video/mp4\r\n");
+            break;
+        case FLAC:
+            strcat(send_buffer, "Content-Type: audio/flac\r\n");
+            break;
 		default:
 			strcat(send_buffer, "Content-Type: type error\r\n");
 	}
@@ -195,6 +204,7 @@ int request_handler(int new_socket, char* request)
 	//nmemb = BUFF_MAX - 1; // sizeof(send_buffer)
 	
     // send the request content
+    cout << "start sending" << endl;
 	while (f_size > 0) {
 		delta = fread(send_buffer, size, nmemb, fp);
         if (delta <= nmemb && ferror(fp)) {
@@ -204,7 +214,9 @@ int request_handler(int new_socket, char* request)
         }
         send_response(new_socket, send_buffer, delta);
         f_size -= delta;
+        //cout << delta << " bytes sent" << endl;
 	}
+    cout << "===============================================" << endl;
     fclose(fp);
 	return 0;
 }
@@ -212,7 +224,7 @@ int request_handler(int new_socket, char* request)
 int send_response(int new_socket, char* send_buffer, int datalen)
 {
 	int sent = 0;
-	cout << "start sending" << endl;
+	//cout << "start sending" << endl;
 	while (datalen > 0) {
 		sent = send(new_socket, send_buffer, datalen, 0);
 		if (sent < 0) {
@@ -225,9 +237,9 @@ int send_response(int new_socket, char* send_buffer, int datalen)
 		}
 		send_buffer += sent;
 		datalen -= sent;
-		cout << sent << " bytes sent" << endl;
+		//cout << sent << " bytes sent" << endl;
 	}
-	cout << "===============================================" << endl;
+	//cout << "===============================================" << endl;
 	return 0;
 }
 
@@ -257,6 +269,10 @@ FileType parse_type(char* file_name)
         return XCON;
     } else if (strcmp(type, ".gif") == 0) {
         return GIF;
+    } else if (strcmp(type, ".mp4") == 0) {
+        return MP4;
+    } else if (strcmp(type, ".flac") == 0) {
+        return FLAC;
     } else {
         return None;
     }
