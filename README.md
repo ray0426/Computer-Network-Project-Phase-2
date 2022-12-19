@@ -36,8 +36,6 @@ Open your web browser and enter your ip address and port number on `Chrome`, `Ed
 ## Demo
 This is what our page look like.
 
-<iframe src="https://drive.google.com/file/d/15lyMjopYzNLPRqalIy9j1eI02Aun5lDj/preview" width="640" height="480" allow="autoplay"></iframe>
-
 [![Demo Video] ()][https://drive.google.com/file/d/15lyMjopYzNLPRqalIy9j1eI02Aun5lDj/preview]
 
 ## Architecture
