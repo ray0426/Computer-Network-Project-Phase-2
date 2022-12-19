@@ -36,7 +36,7 @@ Open your web browser and enter your ip address and port number on `Chrome`, `Ed
 ## Demo
 This is what our page look like.
 
-![](https://drive.google.com/drive/u/0/folders/1bnazujoAViEhDosGXnbyD6L1PTk6GB5G)
+![](https://drive.google.com/file/d/15lyMjopYzNLPRqalIy9j1eI02Aun5lDj/view?usp=sharing)
 
 ## Architecture
 ### Server
