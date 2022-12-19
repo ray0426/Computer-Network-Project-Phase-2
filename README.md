@@ -36,7 +36,9 @@ Open your web browser and enter your ip address and port number on `Chrome`, `Ed
 ## Demo
 This is what our page look like.
 
-![](https://drive.google.com/file/d/15lyMjopYzNLPRqalIy9j1eI02Aun5lDj/view?usp=sharing)
+<iframe src="https://drive.google.com/file/d/15lyMjopYzNLPRqalIy9j1eI02Aun5lDj/preview" width="640" height="480" allow="autoplay"></iframe>
+
+[![Demo Video] ()][https://drive.google.com/file/d/15lyMjopYzNLPRqalIy9j1eI02Aun5lDj/preview]
 
 ## Architecture
 ### Server
@@ -58,7 +60,7 @@ phase2
 ├─── profile.css	// css
 ├─── laybkgnd.gif	// background
 ├─── 346496.jpg		// my photo
-├─── intro.mp4      // video
+├─── intro.mp4          // video
 └─── librispeech.flac   // sound
 ```
 
