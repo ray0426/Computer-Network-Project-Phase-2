@@ -1,9 +1,10 @@
 # Computer Network Project Phase 2
 ## About
-This project is about a simple implementation of HTTP server which can host a profile page. Clients can easily browse my profile by simply entering the ip address on the web browsers, including `Chrome`, `Edge` and `FireFox`.  ( Do not support `Safari`)
-repository: 
+This project is about a simple implementation of HTTP server which can host a profile page. Clients can easily browse my profile by simply entering the ip address on the web browsers, including `Chrome`, `Edge` and `FireFox`.  ( Do not support `Safari`)\
+GitHub Repository URL: [link](https://github.com/ray0426/Tic-tac-toe) 
 
-## IP Adderss
+## Our Project IP Adderss
+Our project is deloyed on the below ip address.
 
 ```
 http://60.251.128.233:48763
@@ -30,16 +31,10 @@ $ ./a.out
 ```
 
 ### Step 3
-Open your web browser and enter your ip address and port number on `Chrome`, `Edge` and `FireFox`. Then you can browse the webpage. 
+Open your web browser and enter your ip address and port number on `Chrome`, `Edge` or `FireFox`. Then you can browse the webpage. 
 
 ## Demo
-My profile page has been launched on the following ip address, which is a NAS of my colleague, 游耿睿 Ray.
-
-
-```
-60.251.128.233:48763
-```
-This is what my page look like.
+This is what our page look like.
 
 ![image](./demo.png)
 
@@ -48,8 +43,8 @@ This is what my page look like.
 The following file is about the server. 
 
 ```bash
-phase1
-└─── http-server.c	// the server
+phase2
+└─── main.cpp	// the server
 ```
 
 ### Profile Page
@@ -66,5 +61,14 @@ phase2
 ```
 
 
-## Function
-In this project, the http server provides the `GET` request of multiple types of files from clients, including `.html`, `.css`, `.gif`, `.jpg`, `.mp4` and `.flac`. 
+## Functions
+
+1. A Website with Videoes, Sounds and Images
+    - Our server provides the `GET` request of multiple types of files from clients, including `.html`, `.css`, `.gif`, `.jpg`, `.mp4` and `.flac`. 
+2.  Message Board
+    - We implement the response of `POST` request in our server. The message left by the visitors can be recorded.  
+
+## Contributers
+
+* B08901211 電機四 游耿睿
+* B08901215 電機四 蕭淇元
