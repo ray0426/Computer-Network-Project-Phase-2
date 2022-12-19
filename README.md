@@ -36,7 +36,7 @@ Open your web browser and enter your ip address and port number on `Chrome`, `Ed
 ## Demo
 This is what our page look like.
 
-[![Demo Video] ()](https://drive.google.com/file/d/15lyMjopYzNLPRqalIy9j1eI02Aun5lDj/preview)
+[![Demo Video] (https://drive.google.com/file/d/1ZTZZK-RbhgxNzteOVDA2jnUpRTEiuT9u/preview)](https://drive.google.com/file/d/15lyMjopYzNLPRqalIy9j1eI02Aun5lDj/preview "Demo Video")
 
 ## Architecture
 ### Server
