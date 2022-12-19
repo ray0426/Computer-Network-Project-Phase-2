@@ -65,14 +65,16 @@ CN_Project_Phase2
 
 ## Implemented Functions
 
-### A Website with Videoes, Sounds and Images
+### Video and Sound Streaming
+- Autoplaying the video and sound provided by the website.
 - Our server provides the `GET` request of multiple types of files from clients, including `.html`, `.css`, `.gif`, `.jpg`, `.mp4` and `.flac`. 
 - Restriction: Cannot pull the video/sound progress bar on `Chrome` and `Edge`.
 ### Message Board
-- We implement the response of `POST` request in our server. The message left by the visitors can be recorded.  
+- Visitors can turn to the message board page and type in their name and message, then their messeage will show on the page with time stamp. 
+- We implement the response of `POST` request in our server, so that it can deal with the input meaasge from visitors.   
 - Restriction: Can only enter english alpabet and numbers.
 
-## Contributers
+## Contributors
 
 * B08901211 電機四 游耿睿
 * B08901215 電機四 蕭淇元
