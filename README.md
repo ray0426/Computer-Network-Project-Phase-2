@@ -15,7 +15,7 @@ http://60.251.128.233:48763
 Make sure that you are under the directory of our project. 
 
 ### Step 1
-Modify the ip address and port number in line 13 and 14 in `main.cpp`.
+Modify the `HOST` address and `PORT` number in line 13 and 14 in `main.cpp`.
 
 ```c++
 #define PORT 8000
@@ -38,12 +38,12 @@ This is what our page look like.
 
 [Demo Video](https://drive.google.com/file/d/15lyMjopYzNLPRqalIy9j1eI02Aun5lDj/preview "Demo Video")
 
-## Architecture
+## File Structure
 ### Server
 The following file is about the server. 
 
 ```bash
-phase2
+CN_Project_Phase2
 └─── main.cpp	// the server
 ```
 
@@ -51,7 +51,7 @@ phase2
 The following files are about the profile page.
 
 ```bash
-phase2
+CN_Project_Phase2
 ├─── index.html	    // html
 ├─── board.html     // html
 ├─── file.html      // html
