@@ -1,7 +1,7 @@
 # Computer Network Project Phase 2
 ## About
-This project is about a simple implementation of HTTP server which can host a profile page. Clients can easily browse my profile by simply entering the ip address on the web browsers, including `Chrome`, `Edge` and `FireFox`.  ( Do not support `Safari`)\
-GitHub Repository URL: [link](https://github.com/ray0426/Tic-tac-toe) 
+This project is about a simple implementation of HTTP server which can host a profile page. Clients can easily browse it by simply entering the ip address on the web browsers, including `Chrome`, `Edge` and `FireFox`.  ( Do not support `Safari`)\
+GitHub Repository URL: [https://github.com/ray0426/Tic-tac-toe](https://github.com/ray0426/Tic-tac-toe) 
 
 ## Our Project IP Adderss
 Our project is deloyed on the below ip address.
@@ -12,13 +12,13 @@ http://60.251.128.233:48763
 
 ## Compile and Execute
 ### Step 0
-Make sure that you are under the directory of `phase2`, whilch is about this project. 
+Make sure that you are under the directory of our project. 
 
 ### Step 1
 Modify the ip address and port number in line 13 and 14 in `main.cpp`.
 
 ```c++
-#define PORT 48763
+#define PORT 8000
 #define HOST "0.0.0.0"
 ```
 
@@ -36,7 +36,7 @@ Open your web browser and enter your ip address and port number on `Chrome`, `Ed
 ## Demo
 This is what our page look like.
 
-![image](./demo.png)
+![](https://drive.google.com/drive/u/0/folders/1bnazujoAViEhDosGXnbyD6L1PTk6GB5G)
 
 ## Architecture
 ### Server
@@ -57,16 +57,20 @@ phase2
 ├─── file.html      // html
 ├─── profile.css	// css
 ├─── laybkgnd.gif	// background
-└─── 346496.jpg		// my photo
+├─── 346496.jpg		// my photo
+├─── intro.mp4      // video
+└─── librispeech.flac   // sound
 ```
 
 
 ## Functions
 
-1. A Website with Videoes, Sounds and Images
-    - Our server provides the `GET` request of multiple types of files from clients, including `.html`, `.css`, `.gif`, `.jpg`, `.mp4` and `.flac`. 
-2.  Message Board
-    - We implement the response of `POST` request in our server. The message left by the visitors can be recorded.  
+### A Website with Videoes, Sounds and Images
+- Our server provides the `GET` request of multiple types of files from clients, including `.html`, `.css`, `.gif`, `.jpg`, `.mp4` and `.flac`. 
+- Restriction: Cannot pull the video/sound progress bar on `Chrome` and `Edge`.
+### Message Board
+- We implement the response of `POST` request in our server. The message left by the visitors can be recorded.  
+- Restriction: Can only enter english alpabet and numbers.
 
 ## Contributers
 
