@@ -68,11 +68,11 @@ CN_Project_Phase2
 ### Video and Sound Streaming
 - Autoplaying the video and sound provided by the website.
 - Our server provides the `GET` request of multiple types of files from clients, including `.html`, `.css`, `.gif`, `.jpg`, `.mp4` and `.flac`. 
-- Restriction: Cannot pull the video/sound progress bar on `Chrome` and `Edge`.
+- **Restriction: Cannot pull the video/sound progress bar on `Chrome` and `Edge`.**
 ### Message Board
 - Visitors can turn to the message board page and type in their name and message, then their messeage will show on the page with time stamp. 
 - We implement the response of `POST` request in our server, so that it can deal with the input meaasge from visitors.   
-- Restriction: Can only enter english alpabet and numbers.
+- **Restriction: Can only enter english alpabet and numbers.**
 
 ## Contributors
 
