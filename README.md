@@ -1,7 +1,7 @@
 # Computer Network Project Phase 2
 ## About
-This project is about a simple implementation of HTTP server which can host a profile page. Clients can easily browse it by simply entering the ip address on the web browsers, including `Chrome`, `Edge` and `FireFox`.  ( Do not support `Safari`)\
-GitHub Repository URL: [https://github.com/ray0426/Tic-tac-toe](https://github.com/ray0426/Tic-tac-toe) 
+This project is about a simple implementation of HTTP server which can host a profile page. Clients can easily browse it by simply entering the ip address on the web browsers, including `Chrome`, `Edge` and `FireFox`.  ( Do not support `Safari`)
+    - GitHub Repository URL: [https://github.com/ray0426/Tic-tac-toe](https://github.com/ray0426/Tic-tac-toe) 
 
 ## Our Project IP Adderss
 Our project is deloyed on the below ip address.
