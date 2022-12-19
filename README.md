@@ -10,7 +10,7 @@ Our project is deloyed on the below ip address.
 http://60.251.128.233:48763
 ```
 
-## Compile and Execute
+## Compilation and Execution
 ### Step 0
 Make sure that you are under the directory of our project. 
 
@@ -63,7 +63,7 @@ CN_Project_Phase2
 ```
 
 
-## Functions
+## Implemented Functions
 
 ### A Website with Videoes, Sounds and Images
 - Our server provides the `GET` request of multiple types of files from clients, including `.html`, `.css`, `.gif`, `.jpg`, `.mp4` and `.flac`. 
