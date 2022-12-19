@@ -65,17 +65,17 @@ CN_Project_Phase2
 
 ## Implemented Functions
 
-### Message Board
+### Message Board (留言板)
 - Visitors can turn to the message board page and type in their name and message, then their messeage will show on the page with time stamp. 
 - We implement the response of `POST` request in our server, so that it can deal with the input meaasge from visitors.   
 - **Restriction: Can only enter english alpabet and numbers.**
 
-### Video Streaming
+### Video Streaming (影片串流)
 - Autoplaying the video provided by the website.
 - Our server provides the `GET` request of multiple types of files from clients, including `.html`, `.css`, `.gif`, `.jpg`, `.mp4` and `.flac`. 
 - **Restriction: Cannot pull the video progress bar on `Chrome` and `Edge`.**
 
-### Sound Streaming
+### Sound Streaming (聲音串流)
 - Autoplaying the sound provided by the website.
 - Our server provides the `GET` request of multiple types of files from clients, including `.html`, `.css`, `.gif`, `.jpg`, `.mp4` and `.flac`. 
 - **Restriction: Cannot pull the sound progress bar on `Chrome` and `Edge`.**
